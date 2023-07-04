@@ -1,6 +1,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QProcess>
+#include <QtQml>
 
 #include "vtt.h"
 
@@ -19,7 +20,11 @@ int main(int argc, char *argv[])
     }, Qt::QueuedConnection);
     engine.load(url);
 
+    qmlRegisterUncreatableType<vtt>("App", 1, 0, "Vtt", "");
     vtt vtt;
+    engine.rootContext()->setContextProperty("Vtt", &vtt);
+
+
 
     return app.exec();
 }

@@ -89,7 +89,7 @@ def main():
     print('temp file:', temp_file)
     
     with source:
-        recorder.adjust_for_ambient_noise(source)
+        recorder.adjust_for_ambient_noise(source, duration=5)
 
     def record_callback(_, audio:sr.AudioData) -> None:
         """
@@ -197,7 +197,7 @@ class Client():
             if idx == -1 and text == 'stop':
                 break
 
-            self.sock.send(bytes(str(idx) + text, 'UTF-8'))
+            self.sock.send(bytes(str(idx) + ' ' + text, 'UTF-8'))
 
 running = True
 num_clients = 0

@@ -3,34 +3,60 @@
 #include <QProcess>
 #include <QDebug>
 #include <QTcpSocket>
+#include <QHostAddress>
 
 vtt::vtt()
 {
-    //QTcpSocket socket;
+    sock = new QTcpSocket(this);
 
-    qDebug() << "Hi, testing" << Qt::endl;
-    QString program = "python";
-    QStringList arguments;
+    connect(sock, &QTcpSocket::readyRead, this, &vtt::onMessage);
 
-    arguments << "./transcribe.py";
+    sock->connectToHost(QHostAddress("127.0.0.1"), 5005);
+    connect(sock, &QTcpSocket::connected, this, [](){
+        qDebug() << "connected";
+    });
 
-    proc = new QProcess(this);
-    proc->start(program, arguments);
+    qDebug() << "Connecting to host...";
 
-    connect(proc, &QProcess::readyRead, this, &vtt::onMessage);
+    // we need to wait...
+    if(!sock->waitForConnected(5000)){
+        qDebug() << "Error: " << sock->errorString();
+    }
+}
+
+QString vtt::getText(){
+    return cumulative + curr;
 }
 
 void vtt::onMessage(){
-    QString output(proc->readAllStandardOutput());
+    QString message = QString::fromUtf8(sock->readAll().trimmed());
 
-    qDebug() << "output: " << output;
+    int idxSpace = message.indexOf(' ');
 
-    QString error(proc->readAllStandardError());
+    if(idxSpace <= 0){
+        return;
+    }
 
-    qDebug() << "error: " << error;
+    QStringRef idxStr(&message, 0, idxSpace);
+    int idx = idxStr.toInt();
+
+    QStringRef text(&message, idxSpace, message.length() - 1);
+
+    qDebug() << "number: " << idxStr << " " << idx;
+    qDebug() << "text: " << text;
+
+    if(idx != this->currIdx){
+        this->cumulative += this->curr;
+    }
+
+    this->curr.clear();
+    this->curr += text;
+    this->currIdx = idx;
+
+    emit textChanged();
 }
 
 vtt::~vtt(){
-    delete proc;
+    delete sock;
 }
 

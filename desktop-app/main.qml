@@ -10,19 +10,18 @@ ApplicationWindow {
     color: Qt.rgba(0.7, 0.7, 0.7, 0.8)
 
     ScrollView {
-        width: parent.width * 0.8
+        width: parent.width
         height: parent.height * 0.8
         //anchors.fill: parent
 
         TextArea {
             id: textarea
             font.pixelSize: 25
-            text: "Lorem ipsum dolor sit amet, consectetur adipisicing elit, \n" +
-                  "sed do eiusmod tempor incididunt ut labore et dolore magna \n" +
-                  "aliqua. Ut enim ad minim veniam, quis nostrud exercitation \n" +
-                  "ullamco laboris nisi ut aliquip ex ea commodo cosnsequat. "
+            text: Vtt.text
             selectByMouse: true
             background: Qt.rgba(1, 1, 1, 1)
+            wrapMode: TextEdit.WordWrap
+            readOnly: true
         }
     }
 }
