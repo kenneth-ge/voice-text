@@ -19,7 +19,7 @@ from tempfile import NamedTemporaryFile
 from time import sleep
 from sys import platform
 
-from threading import *
+from threading import Thread
 from socket import *
 from queue import Queue
 import time
@@ -57,7 +57,7 @@ def main():
     
     # Important for linux users. 
     # Prevents permanent application hang and crash by using the wrong Microphone
-    if 'linux' in platform:
+    """if 'linux' in platform:
         mic_name = args.default_microphone
         if not mic_name or mic_name == 'list':
             print("Available microphone devices are: ")
@@ -72,8 +72,10 @@ def main():
                     source = sr.Microphone(sample_rate=16000, device_index=index)
                     break
     else:
-        source = sr.Microphone(sample_rate=16000)
+        source = sr.Microphone(sample_rate=16000)"""
         
+    source = sr.Microphone(sample_rate=16000)
+
     # Load / Download model
     model = args.model
     if args.model != "large" and not args.non_english:
@@ -110,14 +112,14 @@ def main():
     global server
     global running
     global messages
-    server = Server()
+    #server = Server()
 
     phrase_time = None
 
     index = 0
 
-    t2 = Thread(target=server.listen_conn)
-    t2.start()
+    #t2 = Thread(target=server.listen_conn)
+    #t2.start()
 
     while running:
         try:
@@ -164,15 +166,15 @@ def main():
                 # print the current line, with an id at the beginning so we can tell if it's
                 # a new section or an update on an existing one
                 print(index, text, flush=True)
-                server.add_message(index, text + '\n')
+                #server.add_message(index, text + '\n')
 
                 # Infinite loops are bad for processors, must sleep.
                 sleep(0.25)
         except KeyboardInterrupt as e:
             print(e)
             running = False
-            close_server()
-            server.close_conns()
+            #close_server()
+            #server.close_conns()
             break
 
 server = None

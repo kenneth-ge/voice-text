@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QTcpSocket>
 #include <QHostAddress>
+#include <QString>
 
 vtt::vtt()
 {
@@ -37,10 +38,11 @@ void vtt::onMessage(){
         return;
     }
 
-    QStringRef idxStr(&message, 0, idxSpace);
+    QString idxStr = message.mid(0, idxSpace);
+
     int idx = idxStr.toInt();
 
-    QStringRef text(&message, idxSpace, message.length() - 1);
+    QString text = message.mid(idxSpace, message.length() - idxSpace);
 
     qDebug() << "number: " << idxStr << " " << idx;
     qDebug() << "text: " << text;

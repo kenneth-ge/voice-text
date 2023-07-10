@@ -5,3 +5,4 @@ Requirements:
 	* `pyaudio`
 * install onto path
 	* `ffmpeg` (on path)
+		* requires `portaudio` and `portaudio-devel` on Linux
