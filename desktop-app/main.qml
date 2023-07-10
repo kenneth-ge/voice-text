@@ -2,6 +2,7 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 
 ApplicationWindow {
+    id: window
     width: 640
     height: 480
     visible: true
@@ -10,7 +11,7 @@ ApplicationWindow {
     color: Qt.rgba(0.7, 0.7, 0.7, 0.8)
 
     ScrollView {
-        width: parent.width
+        width: parent.width * 0.8
         height: parent.height * 0.8
         //anchors.fill: parent
 
@@ -24,4 +25,37 @@ ApplicationWindow {
             readOnly: true
         }
     }
+
+    ListView {
+        x: textarea.width
+        width: parent.width * 0.2
+        height: parent.height
+
+        model: model
+        delegate: Row {
+            Text { text: "Fruit: " + text }
+        }
+    }
+
+    ListModel {
+        id: model
+
+        ListElement {
+            text: "Stuff 1"
+        }
+
+        ListElement {
+            text: "Stuff 2"
+        }
+
+        ListElement {
+            text: "Stuff 3"
+        }
+    }
 }
+
+/*##^##
+Designer {
+    D{i:0;formeditorZoom:0.5}
+}
+##^##*/
