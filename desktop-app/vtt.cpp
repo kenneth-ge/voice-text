@@ -5,6 +5,8 @@
 #include <QTcpSocket>
 #include <QHostAddress>
 #include <QString>
+#include <utility>
+#include <algorithm>
 
 vtt::vtt()
 {
@@ -26,7 +28,15 @@ vtt::vtt()
 }
 
 QString vtt::getText(){
-    return cumulative + curr;
+    if(!isCommand)
+        return cumulative + curr;
+    return cumulative;
+}
+
+QString vtt::getCommandText(){
+    if(isCommand)
+        return curr;
+    return "";
 }
 
 void vtt::onMessage(){
@@ -47,7 +57,7 @@ void vtt::onMessage(){
     qDebug() << "number: " << idxStr << " " << idx;
     qDebug() << "text: " << text;
 
-    if(idx != this->currIdx){
+    if(!isCommand && idx != this->currIdx){
         this->cumulative += this->curr;
     }
 
@@ -56,6 +66,27 @@ void vtt::onMessage(){
     this->currIdx = idx;
 
     emit textChanged();
+}
+
+void vtt::buttonPressed(){
+    this->cumulative += this->curr;
+    this->curr.clear();
+    this->isCommand = true;
+}
+
+int max(int a, int b){
+    if(a > b)
+        return a;
+    return b;
+}
+
+void vtt::buttonReleased(){
+    qDebug() << "button released";
+    this->isCommand = false;
+    this->command = curr;
+    emit newCommand(this->cumulative.mid(max(0, this->cumulative.length() - 2048), 2048), this->command);
+    this->curr.clear();
+    this->currIdx++;
 }
 
 vtt::~vtt(){
