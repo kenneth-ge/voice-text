@@ -27,6 +27,19 @@ vtt::vtt()
     }
 }
 
+void vtt::textHasChanged(QString text){
+    // Check if the text change was triggered programmatically
+    if (ignoreTextChange) {
+        ignoreTextChange = false;
+        return;
+    }
+
+    this->cumulative = text;
+    this->curr.clear();
+    this->currIdx++;
+    qDebug() << "type";
+}
+
 QString vtt::getText(){
     if(!isCommand)
         return cumulative + curr;
@@ -65,7 +78,9 @@ void vtt::onMessage(){
     this->curr += text;
     this->currIdx = idx;
 
+    ignoreTextChange = true;
     emit textChanged();
+    emit moveCaretToEnd(this->getText().length());
 }
 
 void vtt::buttonPressed(){

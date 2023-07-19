@@ -27,11 +27,21 @@ Window {
             background: Qt.rgba(1, 1, 1, 1)
             wrapMode: TextEdit.WordWrap
             //readOnly: true
+            onTextChanged: Vtt.textHasChanged(text)
+
+            Connections {
+                target: Vtt
+                onTextChanged: {
+                    console.log("len: " + textarea.text.length)
+                    textarea.cursorPosition = textarea.text.length
+                    console.log(cursorPosition)
+                }
+            }
         }
     }
 
     Rectangle {
-        x: textarea.width
+        x: scroll.width
         y: 0
         width: parent.width * 0.2
         height: parent.height
@@ -125,8 +135,8 @@ Window {
 
     Button {
         y: scroll.height
-        width: textarea.width
-        height: parent.height - textarea.height
+        width: scroll.width
+        height: parent.height - scroll.height
         text: "Push for Command"
         onPressed: {
             Vtt.buttonPressed()
