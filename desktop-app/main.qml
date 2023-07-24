@@ -31,10 +31,8 @@ Window {
 
             Connections {
                 target: Vtt
-                onTextChanged: {
-                    console.log("len: " + textarea.text.length)
+                function onTextChanged() {
                     textarea.cursorPosition = textarea.text.length
-                    console.log(cursorPosition)
                 }
             }
         }

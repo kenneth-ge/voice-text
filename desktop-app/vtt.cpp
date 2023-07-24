@@ -25,6 +25,15 @@ vtt::vtt()
     if(!sock->waitForConnected(5000)){
         qDebug() << "Error: " << sock->errorString();
     }
+
+    idleTimer = new QTimer(this);
+    idleTimer->setInterval(2500);
+    connect(idleTimer, &QTimer::timeout, this, [this]() {
+        qDebug() << "User hasn't typed for a while!";
+        sock->write("resume\n");
+        sock->flush();
+    });
+    idleTimer->start();
 }
 
 void vtt::textHasChanged(QString text){
@@ -34,10 +43,13 @@ void vtt::textHasChanged(QString text){
         return;
     }
 
+    sock->write("pause\n");
+    sock->flush();
     this->cumulative = text;
     this->curr.clear();
     this->currIdx++;
-    qDebug() << "type";
+    qDebug() << "pause";
+    idleTimer->start();
 }
 
 QString vtt::getText(){
@@ -80,13 +92,15 @@ void vtt::onMessage(){
 
     ignoreTextChange = true;
     emit textChanged();
-    emit moveCaretToEnd(this->getText().length());
 }
 
 void vtt::buttonPressed(){
     this->cumulative += this->curr;
     this->curr.clear();
     this->isCommand = true;
+
+    this->sock->write("end_seg\n");
+    this->sock->flush();
 }
 
 int max(int a, int b){
@@ -106,5 +120,6 @@ void vtt::buttonReleased(){
 
 vtt::~vtt(){
     delete sock;
+    delete idleTimer;
 }
 

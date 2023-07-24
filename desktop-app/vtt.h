@@ -24,9 +24,9 @@ signals:
     void textChanged();
     void newCommand(QString text, QString command);
     void commandTextChanged();
-    void moveCaretToEnd(int pos);
 private:
     QTcpSocket *sock;
+    QTimer *idleTimer;
     QString cumulative;
     QString curr;
     QString command;

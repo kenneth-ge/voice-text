@@ -112,6 +112,10 @@ def main():
     global server
     global running
     global messages
+
+    global request_end_seg
+    global pause
+
     server = Server()
 
     phrase_time = None
@@ -126,12 +130,23 @@ def main():
             now = datetime.utcnow()
             # Pull raw recorded audio from the queue.
             if not data_queue.empty():
+                if pause:
+                    with data_queue.mutex:
+                        data_queue.queue.clear()
+                    continue
+
                 phrase_complete = False
                 # If enough time has passed between recordings, consider the phrase complete.
                 # Clear the current working audio buffer to start over with the new data.
                 if phrase_time and now - phrase_time > timedelta(seconds=phrase_timeout):
                     last_sample = bytes()
                     phrase_complete = True
+
+                if request_end_seg:
+                    request_end_seg = False
+                    last_sample = bytes()
+                    phrase_complete = True
+
                 # This is the last time we received new audio data from the queue.
                 phrase_time = now
 
@@ -178,6 +193,8 @@ def main():
             break
 
 server = None
+request_end_seg = False
+pause = False
 
 class Client():
     def __init__(self, sock, addr):
@@ -185,10 +202,35 @@ class Client():
         self.addr = addr 
         self.thread = None
         self.messages = Queue()
+        self.thread2 = Thread(target=self.network)
+
+        # 5 second timeout -- close enough performance-wise to non-blocking
+        self.sock.settimeout(5)
         pass
 
     def send_msg(self, idx, text):
         self.messages.put((idx, text))
+
+    def network(self):
+        global request_end_seg
+        global pause
+
+        while running:
+            try:
+                data = self.sock.recv(1024)
+                words = data.decode()
+
+                if words.startswith('end_seg'):
+                    request_end_seg = True
+                    print('request end segment')
+                if words.startswith('pause'):
+                    pause = True
+                    print('pausing')
+                if words.startswith('resume'):
+                    pause = False
+            except:
+                # timeout -- just pass
+                pass
 
     def run(self):
         global running
@@ -210,6 +252,7 @@ class Server():
 
     def close_conns(self):
         for c in self.clients:
+            c.sock.close()
             c.send_msg(-1, 'stop')
 
     def listen_conn(self):
