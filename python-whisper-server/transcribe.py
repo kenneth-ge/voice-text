@@ -203,6 +203,7 @@ class Client():
         self.thread = None
         self.messages = Queue()
         self.thread2 = Thread(target=self.network)
+        self.thread2.start()
 
         # 5 second timeout -- close enough performance-wise to non-blocking
         self.sock.settimeout(5)
@@ -222,10 +223,8 @@ class Client():
 
                 if words.startswith('end_seg'):
                     request_end_seg = True
-                    print('request end segment')
                 if words.startswith('pause'):
                     pause = True
-                    print('pausing')
                 if words.startswith('resume'):
                     pause = False
             except:
