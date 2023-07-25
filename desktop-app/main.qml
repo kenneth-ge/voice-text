@@ -188,6 +188,23 @@ Window {
             z: -1
         }
     }
+
+    /*Rectangle {
+        width: window.width * 0.8
+        height: 50
+        visible: false//Edit.isShowingSnackbar
+        color: "black"
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom  // Position the element at the bottom
+        anchors.bottomMargin: 20       // 20 pixels from the bottom
+
+        Text {
+            anchors.centerIn: parent
+            text: "This is a snackbar popup window"
+            font.pixelSize: 24
+            color: "white"
+        }
+    }*/
 }
 
 

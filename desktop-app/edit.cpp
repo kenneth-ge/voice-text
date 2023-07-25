@@ -18,6 +18,10 @@ edit::edit(){
     if(!sock->waitForConnected(5000)){
         qDebug() << "Error: " << sock->errorString();
     }
+
+    // initialize command and control commands
+    //exitCmds.insert("exit");
+    //exitCmds.insert("clear");
 }
 
 bool edit::isLoading(){
@@ -51,11 +55,24 @@ void edit::onMessage()
     }
 
     emit newOptions();
+    //this->showingOptions = true;
 }
 
+/*bool edit::isShowing(){
+    return this->showingSnackbar;
+}*/
+
 void edit::commandRecvd(QString text, QString command){
-    //text = "The botanical definition of a nut is \"a fruit whose ovary wall becomes hard at maturity.\" Using this criterion, the peanut is not a nut. However, peanuts are usually categorized as nuts for culinary purposes and in common English more generally. Peanuts are similar in taste and nutritional profile to tree nuts such as walnuts and almonds, and, as a culinary nut, are often served in similar ways in Western cuisines.";
-    //command = "the sentence on other commonly eaten nuts";
+    /*if(this->showingOptions){
+        auto firstWord = command.mid(0, command.indexOf(' '));
+        if(exitCmds.find(firstWord) != exitCmds.end()){
+            this->showingOptions = false;
+            this->options.clear();
+        }else{
+            //this->showingSnackbar = true;
+        }
+    }*/
+
     qDebug() << "command recvd: " << text << " | " << command;
 
     loadingScrn = true;
