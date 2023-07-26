@@ -35,6 +35,17 @@ Window {
                     textarea.cursorPosition = textarea.text.length
                 }
             }
+
+            Connections {
+                target: Edit
+                function onEmitSelect(fragment){
+                    var idx = Vtt.text.lastIndexOf(fragment);
+                    textarea.select(idx, idx + fragment.length);
+                }
+                function onRemoveSelected(){
+                    textArea.remove(textArea.selectionStart, textArea.selectionEnd - textArea.selectionStart);
+                }
+            }
         }
     }
 
@@ -189,10 +200,10 @@ Window {
         }
     }
 
-    /*Rectangle {
+    Rectangle {
         width: window.width * 0.8
         height: 50
-        visible: false//Edit.isShowingSnackbar
+        opacity: Edit.snackbarOpacity
         color: "black"
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom  // Position the element at the bottom
@@ -200,11 +211,15 @@ Window {
 
         Text {
             anchors.centerIn: parent
-            text: "This is a snackbar popup window"
+            text: "Unknown Command"
             font.pixelSize: 24
             color: "white"
         }
-    }*/
+
+        Behavior on opacity {
+            OpacityAnimator { duration: 500 } // Adjust the duration as needed
+        }
+    }
 }
 
 

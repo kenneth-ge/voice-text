@@ -8,7 +8,7 @@
 
 int main(int argc, char *argv[])
 {
-    //QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     QGuiApplication app(argc, argv);
 
@@ -23,7 +23,13 @@ int main(int argc, char *argv[])
     edit ed;
     engine.rootContext()->setContextProperty("Edit", &ed);
 
+    qDebug() << "got to connect statement";
+
     QObject::connect(&vtt, &vtt::newCommand, &ed, &edit::commandRecvd);
+    QObject::connect(&vtt, &vtt::newText, &ed, &edit::textRecvd);
+    QObject::connect(&ed, &edit::startInserting, &vtt, &vtt::onStartInserting);
+
+    qDebug() << "connected";
 
     qmlRegisterType<option>("com.voicetext", 1, 0, "Option");
 

@@ -28,27 +28,35 @@ class edit : public QObject {
     QML_ELEMENT
     Q_PROPERTY(QList<option*> options READ getOptions NOTIFY optionsChanged)
     Q_PROPERTY(bool loadingScrn READ isLoading NOTIFY emitLoading)
-    //Q_PROPERTY(bool isShowingSnackbar READ isShowing NOTIFY emitShowing)
+    Q_PROPERTY(float snackbarOpacity READ getSnackbarOpacity NOTIFY emitSnackbarOpacity)
 public:
     edit();
     ~edit();
     QList<option*> getOptions();
     bool isLoading();
-    //bool isShowing();
+    float getSnackbarOpacity();
 signals:
     void optionsChanged();
     void newOptions();
     void emitLoading();
-    //void emitShowing();
+    void emitSnackbarOpacity();
+    void emitSelect(QString fragment);
+    void removeSelected();
+    void startInserting(int idx);
 public slots:
     void commandRecvd(QString text, QString command);
+    void textRecvd(QString text);
 private:
     bool loadingScrn = false;
-    //bool showingOptions = false;
-    //bool showingSnackbar = false;
+    bool showingOptions = false;
+    float snackbarOpacity = false;
+    bool selecting = false;
     QList<option*> options;
     QTcpSocket* sock;
-    //std::unordered_set<QString> exitCmds;
+    std::unordered_set<QString> exitCmds, numbers[10], remove, insert;
+    QTimer* snackbarTimer;
+    QString text;
+    QString currentFrag;
 private slots:
     void onMessage();
 };

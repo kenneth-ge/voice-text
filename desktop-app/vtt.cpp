@@ -29,7 +29,7 @@ vtt::vtt()
     idleTimer = new QTimer(this);
     idleTimer->setInterval(2500);
     connect(idleTimer, &QTimer::timeout, this, [this]() {
-        qDebug() << "User hasn't typed for a while!";
+        //qDebug() << "User hasn't typed for a while!";
         sock->write("resume\n");
         sock->flush();
     });
@@ -37,6 +37,8 @@ vtt::vtt()
 }
 
 void vtt::textHasChanged(QString text){
+    emit newText(text);
+
     // Check if the text change was triggered programmatically
     if (ignoreTextChange) {
         ignoreTextChange = false;
@@ -45,17 +47,19 @@ void vtt::textHasChanged(QString text){
 
     sock->write("pause\n");
     sock->flush();
-    this->cumulative = text;
+    this->cumulative.set(text);
     this->curr.clear();
     this->currIdx++;
     qDebug() << "pause";
     idleTimer->start();
+
+    emit newText(text);
 }
 
 QString vtt::getText(){
-    if(!isCommand)
-        return cumulative + curr;
-    return cumulative;
+    /*if(!isCommand)
+        return cumulative + curr;*/
+    return cumulative.get();
 }
 
 QString vtt::getCommandText(){
@@ -82,20 +86,36 @@ void vtt::onMessage(){
     qDebug() << "number: " << idxStr << " " << idx;
     qDebug() << "text: " << text;
 
-    if(!isCommand && idx != this->currIdx){
-        this->cumulative += this->curr;
+    if(!isCommand){
+        this->cumulative.update(this->curr);
+        if(idx != this->currIdx)
+            this->cumulative.commit();
     }
 
     this->curr.clear();
     this->curr += text;
     this->currIdx = idx;
 
+    if(!isCommand){
+        this->cumulative.update(this->curr);
+    }
+
     ignoreTextChange = true;
-    emit textChanged();
+
+    if(!isCommand)
+        emit textChanged();
+    else
+        emit commandTextChanged();
+}
+
+void vtt::onStartInserting(int pos){
+    cumulative.changeCaretPos(pos);
 }
 
 void vtt::buttonPressed(){
-    this->cumulative += this->curr;
+    this->cumulative.commit();
+    this->cumulative.update(curr);
+    this->cumulative.commit();
     this->curr.clear();
     this->isCommand = true;
 
@@ -113,7 +133,8 @@ void vtt::buttonReleased(){
     qDebug() << "button released";
     this->isCommand = false;
     this->command = curr;
-    emit newCommand(this->cumulative.mid(max(0, this->cumulative.length() - 2048), 2048), this->command);
+    auto text = this->cumulative.get();
+    emit newCommand(text.mid(max(0, text.length() - 2048), 2048), this->command);
     this->curr.clear();
     this->currIdx++;
 }
@@ -123,3 +144,35 @@ vtt::~vtt(){
     delete idleTimer;
 }
 
+
+/* texthandler */
+void texthandler::commit(){
+    before += curr;
+    currentPos += curr.length();
+    curr.clear();
+}
+
+void texthandler::changeCaretPos(int idx){
+    if(idx < currentPos){
+        after.prepend(before.mid(0, currentPos - idx));
+        before.chop(currentPos - idx);
+    }else{
+        // idx > currentPos
+        before += after.first(idx - currentPos);
+        after.remove(0, idx - currentPos);
+    }
+}
+
+void texthandler::update(QString s){
+    this->curr = s;
+}
+
+QString texthandler::get(){
+    return before + curr + after;
+}
+
+void texthandler::set(QString s){
+    before = s.mid(0, currentPos);
+    after = s.mid(currentPos, s.length() - currentPos);
+    curr.clear();
+}
