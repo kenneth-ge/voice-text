@@ -3,6 +3,7 @@ Reserved commands:
 * paste clear
 * paste and clear
 * new line
+* save
 
 Pedal commands:
 * Hold down to trigger command prompt anywhere (even when not focusing on window)

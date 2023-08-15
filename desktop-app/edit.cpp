@@ -1,6 +1,7 @@
 #include "edit.h"
 #include <unordered_set>
 #include <QGuiApplication>
+#include <QTextStream>
 
 edit::edit(){
     sock = new QTcpSocket(this);
@@ -289,6 +290,9 @@ void edit::commandRecvd(QString text, QString command){
         }else if(command == "new line"){
             emit setText(text + "\n\n");
             return;
+        }else if(firstWord == "save"){
+            // Display the save file dialog
+            emit openSave();
         }
     }
 
@@ -311,6 +315,29 @@ void edit::commandRecvd(QString text, QString command){
     this->sock->flush();
 
     emit newOptions();
+}
+
+void edit::saveFile(QString filePath){
+    if(!filePath.endsWith(".txt")){
+        filePath = filePath + ".txt";
+    }
+
+    if(filePath.startsWith("file://")){
+        filePath = filePath.remove("file://");
+    }
+
+    qDebug() << "in C++" << filePath;
+
+    QFile file(filePath);
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text)){
+        QTextStream out(&file);
+        out << text;
+
+        file.close();
+        qDebug() << "File saved successfully.";
+    }else{
+        qDebug() << "Failed to open the file for writing.";
+    }
 }
 
 edit::~edit(){

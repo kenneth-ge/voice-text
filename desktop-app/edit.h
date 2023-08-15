@@ -46,10 +46,12 @@ signals:
     void removeSelected();
     void startInserting(int idx);
     void setText(QString text);
+    void openSave();
 public slots:
     void commandRecvd(QString text, QString command);
     void textRecvd(QString text);
     void pedalDoublePress();
+    void saveFile(QString filePath);
 private:
     void paste();
     void clearOptions();

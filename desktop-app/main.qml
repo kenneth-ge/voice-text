@@ -3,6 +3,7 @@ import QtQuick.Window 2.12
 import QtQuick.Controls 2.5
 import com.voicetext 1.0
 import Qt5Compat.GraphicalEffects
+import QtQuick.Dialogs
 
 Window {
     id: window
@@ -242,6 +243,30 @@ Window {
 
         Behavior on opacity {
             OpacityAnimator { duration: 500 } // Adjust the duration as needed
+        }
+    }
+
+    FileDialog{
+        id: fileDialog;
+        title: "Choose a place to save your text";
+        nameFilters: ["Text Files (*.txt);;All Files (*)"];
+        fileMode: FileDialog.SaveFile
+        onAccepted: {
+            var filePath = fileDialog.selectedFile;
+            console.log("User has selected 2: " + filePath);
+            fileDialog.close()
+
+            console.log("type: " + typeof(filePath))
+
+            Edit.saveFile(filePath);
+        }
+
+        Connections {
+            target: Edit
+
+            function onOpenSave(){
+                fileDialog.visible = true
+            }
         }
     }
 }
