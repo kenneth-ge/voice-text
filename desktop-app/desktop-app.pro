@@ -9,6 +9,7 @@ CONFIG += c++11
 SOURCES += \
         edit.cpp \
         main.cpp \
+        pedal_manager.cpp \
         vtt.cpp
 
 RESOURCES += qml.qrc
@@ -26,6 +27,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     edit.h \
+    pedal_manager.h \
     vtt.h
 
 DISTFILES += \

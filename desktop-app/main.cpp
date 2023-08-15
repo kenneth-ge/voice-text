@@ -5,10 +5,12 @@
 
 #include "vtt.h"
 #include "edit.h"
+#include "pedal_manager.h"
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    // commented because deprecated
+    //QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     QGuiApplication app(argc, argv);
 
@@ -16,6 +18,7 @@ int main(int argc, char *argv[])
 
     qmlRegisterUncreatableType<vtt>("App", 1, 0, "Vtt", "");
     qmlRegisterUncreatableType<edit>("App", 1, 0, "Edit", "");
+    qmlRegisterUncreatableType<edit>("App", 1, 0, "PM", "");
 
     vtt vtt;
     engine.rootContext()->setContextProperty("Vtt", &vtt);
@@ -28,10 +31,25 @@ int main(int argc, char *argv[])
     QObject::connect(&vtt, &vtt::newCommand, &ed, &edit::commandRecvd);
     QObject::connect(&vtt, &vtt::newText, &ed, &edit::textRecvd);
     QObject::connect(&ed, &edit::startInserting, &vtt, &vtt::onStartInserting);
+    QObject::connect(&ed, &edit::removeSelected, &vtt, &vtt::deleteSelected);
+    QObject::connect(&ed, &edit::setText, &vtt, &vtt::setText);
 
     qDebug() << "connected";
 
     qmlRegisterType<option>("com.voicetext", 1, 0, "Option");
+
+    // monitor pedal file
+    QFileSystemWatcher watcher;
+
+    watcher.addPath("/dev/shm/footpedal");
+
+    pedal_manager pm;
+    engine.rootContext()->setContextProperty("PM", &pm);
+    QObject::connect(&watcher, &QFileSystemWatcher::fileChanged, &pm, &pedal_manager::pedalChanged);
+    QObject::connect(&pm, &pedal_manager::pedalDown, &vtt, &vtt::pedalPressed);
+    QObject::connect(&pm, &pedal_manager::pedalUp, &vtt, &vtt::pedalReleased);
+    QObject::connect(&pm, &pedal_manager::pedalDoublePress, &ed, &edit::pedalDoublePress);
+    QObject::connect(&pm, &pedal_manager::pedalDoublePress, &vtt, &vtt::pedalDoublePress);
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,

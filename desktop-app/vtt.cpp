@@ -50,7 +50,6 @@ void vtt::textHasChanged(QString text){
     this->cumulative.set(text);
     this->curr.clear();
     this->currIdx++;
-    qDebug() << "pause";
     idleTimer->start();
 
     emit newText(text);
@@ -83,8 +82,8 @@ void vtt::onMessage(){
 
     QString text = message.mid(idxSpace, message.length() - idxSpace);
 
-    qDebug() << "number: " << idxStr << " " << idx;
-    qDebug() << "text: " << text;
+    //qDebug() << "number: " << idxStr << " " << idx;
+    //qDebug() << "text: " << text;
 
     if(!isCommand){
         this->cumulative.update(this->curr);
@@ -109,7 +108,7 @@ void vtt::onMessage(){
 }
 
 void vtt::onStartInserting(int pos){
-    cumulative.changeCaretPos(pos);
+    //cumulative.changeCaretPos(pos);
 }
 
 void vtt::buttonPressed(){
@@ -139,11 +138,44 @@ void vtt::buttonReleased(){
     this->currIdx++;
 }
 
+void vtt::pedalDoublePress(){
+    doublePressed = true;
+}
+
+void vtt::pedalPressed(){
+    doublePressed = false;
+    buttonPressed();
+}
+
+void vtt::pedalReleased(){
+    if(!doublePressed){
+        buttonReleased();
+    }
+}
+
+void vtt::caretPositionChanged(int start, int end){
+    if(start == end){
+        qDebug() << "change caret pos " << start;
+        cumulative.changeCaretPos(start);
+        this->sock->write("end_seg\n");
+        this->sock->flush();
+    }
+}
+
+void vtt::deleteSelected(){
+
+}
+
+void vtt::setText(QString text){
+    qDebug() << "set text to: " << text;
+    this->cumulative.set(text);
+    emit setTextArea(text);
+}
+
 vtt::~vtt(){
     delete sock;
     delete idleTimer;
 }
-
 
 /* texthandler */
 void texthandler::commit(){
@@ -153,14 +185,26 @@ void texthandler::commit(){
 }
 
 void texthandler::changeCaretPos(int idx){
+    QString total = get();
+
+    before = total.mid(0, idx);
+    after = total.mid(idx, total.length());
+    curr = "";
+
+    qDebug() << "change caret pos";
+
+    /*
     if(idx < currentPos){
+        qDebug() << "idx < currentPos";
+        qDebug() << "before: " << before;
+        qDebug() << "after: " << after;
         after.prepend(before.mid(0, currentPos - idx));
         before.chop(currentPos - idx);
     }else{
         // idx > currentPos
         before += after.first(idx - currentPos);
         after.remove(0, idx - currentPos);
-    }
+    }*/
 }
 
 void texthandler::update(QString s){
@@ -171,8 +215,16 @@ QString texthandler::get(){
     return before + curr + after;
 }
 
+static int min(int a, int b){
+    if(a < b)
+        return a;
+    return b;
+}
+
 void texthandler::set(QString s){
+    currentPos = min(currentPos, s.length());
     before = s.mid(0, currentPos);
     after = s.mid(currentPos, s.length() - currentPos);
+    currentPos = s.length();
     curr.clear();
 }

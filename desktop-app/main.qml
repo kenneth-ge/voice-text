@@ -11,12 +11,12 @@ Window {
     visible: true
     title: qsTr("Voice to Text")
     //flags: Qt.ToolTip | Qt.WA_TranslucentBackground | Qt.FramelessWindowHint
-    color: Qt.rgba(0.7, 0.7, 0.7, 0.8)
+    color: Qt.rgba(1, 1, 1, 1)//Qt.rgba(0.7, 0.7, 0.7, 0.8)
 
     ScrollView {
         id: scroll
         width: parent.width * 0.8
-        height: parent.height * 0.8
+        height: parent.height * 0.9
         //anchors.fill: parent
 
         TextArea {
@@ -25,14 +25,23 @@ Window {
             text: Vtt.text
             selectByMouse: true
             background: Qt.rgba(1, 1, 1, 1)
+
+            //textFormat: TextEdit.RichText
+
             wrapMode: TextEdit.WordWrap
             //readOnly: true
             onTextChanged: Vtt.textHasChanged(text)
+
+            // Connect the caretPositionChanged signal to the C++ slot
+            onSelectedTextChanged: Vtt.caretPositionChanged(textarea.selectionStart, textarea.selectionEnd)
 
             Connections {
                 target: Vtt
                 function onTextChanged() {
                     textarea.cursorPosition = textarea.text.length
+                }
+                function onSetTextArea(text){
+                    textarea.text = text
                 }
             }
 
@@ -43,7 +52,13 @@ Window {
                     textarea.select(idx, idx + fragment.length);
                 }
                 function onRemoveSelected(){
-                    textArea.remove(textArea.selectionStart, textArea.selectionEnd - textArea.selectionStart);
+                    console.log("remove selected")
+                    textarea.remove(textarea.selectionStart, textarea.selectionEnd);
+                    Vtt.textHasChanged(textarea.text)
+                    Vtt.caretPositionChanged(textarea.selectionStart, textarea.selectionStart)
+                }
+                function onStartInserting(idx){
+                    textarea.select(idx, idx);
                 }
             }
         }
@@ -154,6 +169,15 @@ Window {
         onReleased: {
             Vtt.buttonReleased()
             commandPopupRect.visible = false
+        }
+        Connections {
+            target: PM
+            onPedalDown: {
+                commandPopupRect.visible = true
+            }
+            onPedalUp: {
+                commandPopupRect.visible = false
+            }
         }
     }
 

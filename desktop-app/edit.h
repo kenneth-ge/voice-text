@@ -8,6 +8,8 @@
 #include <QVariantList>
 #include <unordered_set>
 
+#include <QClipboard>
+
 class option : public QObject {
     Q_OBJECT
     Q_PROPERTY(const QString frag READ getFrag NOTIFY emitFrag)
@@ -43,10 +45,17 @@ signals:
     void emitSelect(QString fragment);
     void removeSelected();
     void startInserting(int idx);
+    void setText(QString text);
 public slots:
     void commandRecvd(QString text, QString command);
     void textRecvd(QString text);
+    void pedalDoublePress();
 private:
+    void paste();
+    void clearOptions();
+    void parseActionWord(QString action);
+
+    bool doublePress = false;
     bool loadingScrn = false;
     bool showingOptions = false;
     float snackbarOpacity = false;
@@ -57,6 +66,7 @@ private:
     QTimer* snackbarTimer;
     QString text;
     QString currentFrag;
+    QClipboard* clipboard;
 private slots:
     void onMessage();
 };

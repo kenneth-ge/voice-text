@@ -14,7 +14,7 @@ public:
     QString get();
     void set(QString s);
 private:
-    int currentPos;
+    int currentPos = 0;
     QString curr;
     QString before, after;
 };
@@ -35,11 +35,18 @@ public:
     Q_INVOKABLE void textHasChanged(QString text);
 public slots:
     void onStartInserting(int pos);
+    void caretPositionChanged(int start, int end);
+    void pedalPressed();
+    void pedalReleased();
+    void pedalDoublePress();
+    void deleteSelected();
+    void setText(QString text);
 signals:
     void textChanged();
     void newCommand(QString text, QString command);
     void commandTextChanged();
     void newText(QString text);
+    void setTextArea(QString text);
 private:
     QTcpSocket *sock;
     QTimer *idleTimer;
@@ -50,6 +57,7 @@ private:
     bool isCommand;
     QString commandText;
     bool ignoreTextChange;
+    bool doublePressed = false;
 private slots:
     void onMessage();
 };
