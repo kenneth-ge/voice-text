@@ -12,15 +12,23 @@ class pedal_manager : public QObject
     QML_ELEMENT
 public:
     pedal_manager();
+    ~pedal_manager();
     bool pressed;
+    bool holding;
 public slots:
     void pedalChanged();
 signals:
     void pedalDown();
     void pedalUp();
     void pedalDoublePress();
+    void pedalHeld();
+    void pedalUpAfterHold();
 private:
     long long lastTime;
+    long long lastPress;
+    long long lastHeld;
+    long long lastRelease;
+    QTimer* timer;
 };
 
 #endif // PEDAL_MANAGER_H

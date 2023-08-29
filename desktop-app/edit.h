@@ -31,12 +31,14 @@ class edit : public QObject {
     Q_PROPERTY(QList<option*> options READ getOptions NOTIFY optionsChanged)
     Q_PROPERTY(bool loadingScrn READ isLoading NOTIFY emitLoading)
     Q_PROPERTY(float snackbarOpacity READ getSnackbarOpacity NOTIFY emitSnackbarOpacity)
+    Q_PROPERTY(int selected READ getSelected NOTIFY emitSelected)
 public:
     edit();
     ~edit();
     QList<option*> getOptions();
     bool isLoading();
     float getSnackbarOpacity();
+    int getSelected();
 signals:
     void optionsChanged();
     void newOptions();
@@ -47,16 +49,21 @@ signals:
     void startInserting(int idx);
     void setText(QString text);
     void openSave();
+    void emitSelected();
+    void needsPause();
 public slots:
     void commandRecvd(QString text, QString command);
     void textRecvd(QString text);
     void pedalDoublePress();
     void saveFile(QString filePath);
+    void nextOption();
 private:
     void paste();
     void clearOptions();
-    void parseActionWord(QString action);
+    // returns true if action parsed successfully
+    bool parseActionWord(QString action);
 
+    int selectedOption;
     bool doublePress = false;
     bool loadingScrn = false;
     bool showingOptions = false;

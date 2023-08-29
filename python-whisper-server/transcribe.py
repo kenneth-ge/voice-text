@@ -131,6 +131,7 @@ def main():
             # Pull raw recorded audio from the queue.
             if not data_queue.empty():
                 if pause:
+                    print('paused, recording paused')
                     with data_queue.mutex:
                         data_queue.queue.clear()
                     continue
@@ -224,6 +225,7 @@ class Client():
                 if words.startswith('end_seg'):
                     request_end_seg = True
                 if words.startswith('pause'):
+                    print('pause requested')
                     pause = True
                 if words.startswith('resume'):
                     pause = False

@@ -113,7 +113,7 @@ Window {
                 onNewOptions: {
                     model.clear()
                     for(var x = 0; x < Edit.options.length; x++){
-                        model.append({opt_num: x, frag: Edit.options[x].frag})
+                        model.append({startingColor: x == 0 ? "yellow" : "gray", opt_num: x, frag: Edit.options[x].frag})
                     }
                 }
             }
@@ -121,7 +121,25 @@ Window {
             model: model
 
             delegate:
+                Rectangle {
+                    id: rect
+                    implicitHeight: element.implicitHeight
+                    width: parent.width
+                    color: startingColor
+
+                    Connections {
+                        target: Edit
+                        onEmitSelected: {
+                            if(opt_num == Edit.selected){
+                                rect.color = "yellow"
+                            }else{
+                                rect.color = "gray"
+                            }
+                        }
+                    }
+
                     Row {
+                        height: parent.height
                         width: parent.width
                         padding: 10
                         Text {
@@ -131,6 +149,7 @@ Window {
                             padding: 5
                         }
                         Text {
+                            id: element
                             text: frag
                             font.pixelSize: 20
                             width: parent.width
@@ -139,6 +158,7 @@ Window {
                             anchors.verticalCenter: parent.verticalCenter
                         }
                     }
+                }
                     Rectangle {
                         width: parent.width * 0.9
                         y: parent.height
@@ -173,7 +193,7 @@ Window {
         }
         Connections {
             target: PM
-            onPedalDown: {
+            onPedalHeld: {
                 commandPopupRect.visible = true
             }
             onPedalUp: {

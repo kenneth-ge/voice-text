@@ -33,6 +33,7 @@ int main(int argc, char *argv[])
     QObject::connect(&ed, &edit::startInserting, &vtt, &vtt::onStartInserting);
     QObject::connect(&ed, &edit::removeSelected, &vtt, &vtt::deleteSelected);
     QObject::connect(&ed, &edit::setText, &vtt, &vtt::setText);
+    QObject::connect(&ed, &edit::needsPause, &vtt, &vtt::pause);
 
     qDebug() << "connected";
 
@@ -46,10 +47,11 @@ int main(int argc, char *argv[])
     pedal_manager pm;
     engine.rootContext()->setContextProperty("PM", &pm);
     QObject::connect(&watcher, &QFileSystemWatcher::fileChanged, &pm, &pedal_manager::pedalChanged);
-    QObject::connect(&pm, &pedal_manager::pedalDown, &vtt, &vtt::pedalPressed);
-    QObject::connect(&pm, &pedal_manager::pedalUp, &vtt, &vtt::pedalReleased);
+    QObject::connect(&pm, &pedal_manager::pedalHeld, &vtt, &vtt::pedalPressed);
+    QObject::connect(&pm, &pedal_manager::pedalUpAfterHold, &vtt, &vtt::pedalReleased);
     QObject::connect(&pm, &pedal_manager::pedalDoublePress, &ed, &edit::pedalDoublePress);
     QObject::connect(&pm, &pedal_manager::pedalDoublePress, &vtt, &vtt::pedalDoublePress);
+    QObject::connect(&pm, &pedal_manager::pedalUp, &ed, &edit::nextOption);
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,

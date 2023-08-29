@@ -41,6 +41,8 @@ public slots:
     void pedalDoublePress();
     void deleteSelected();
     void setText(QString text);
+    void pause();
+    void unpause();
 signals:
     void textChanged();
     void newCommand(QString text, QString command);

@@ -129,6 +129,12 @@ void edit::onMessage(){
 
     emit newOptions();
     this->showingOptions = true;
+
+    emit needsPause();
+
+    auto frag = this->options[selectedOption]->frag;
+
+    emit emitSelect(frag);
 }
 
 void edit::textRecvd(QString text){
@@ -162,6 +168,24 @@ void edit::paste(){
     qDebug() << "Java process error output:" << errorOutput;
 }
 
+int edit::getSelected(){
+    return this->selectedOption;
+}
+
+void edit::nextOption(){
+    if(!this->showingOptions)
+        return;
+
+    this->selectedOption++;
+    this->selectedOption %= this->options.length();
+
+    emit emitSelected();
+
+    auto frag = this->options[selectedOption]->frag;
+
+    emit emitSelect(frag);
+}
+
 void edit::clearOptions(){
     this->showingOptions = false;
     this->options.clear();
@@ -176,7 +200,7 @@ void edit::pedalDoublePress(){
 
 }
 
-void edit::parseActionWord(QString action){
+bool edit::parseActionWord(QString action){
     if(remove.find(action) != remove.end()){
         // remove command
         emit removeSelected();
@@ -184,6 +208,7 @@ void edit::parseActionWord(QString action){
         qDebug() << "remove";
 
         clearOptions();
+        return true;
     }
     if(insert.find(action) != insert.end()){
         emit startInserting(this->text.lastIndexOf(currentFrag) + currentFrag.length());
@@ -191,7 +216,9 @@ void edit::parseActionWord(QString action){
         qDebug() << "insert after";
 
         clearOptions();
+        return true;
     }
+    return false;
 }
 
 void edit::commandRecvd(QString text, QString command){
@@ -219,6 +246,10 @@ void edit::commandRecvd(QString text, QString command){
             if(this->selecting){
                 parseActionWord(firstWord);
             }else{
+                // see if this is an action word
+                if(parseActionWord(firstWord))
+                    return;
+
                 // otherwise, make a selection, or make a selection while also doing an action
                 int selection = -1;
 
