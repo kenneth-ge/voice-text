@@ -94,19 +94,19 @@ void vtt::onMessage(){
 
     int idx = idxStr.toInt();
 
-    QString text = message.mid(idxSpace, message.length() - idxSpace);
+    QString text = message.mid(idxSpace);
 
     //qDebug() << "number: " << idxStr << " " << idx;
     //qDebug() << "text: " << text;
 
     if(!isCommand){
+        // update & commit previous text if necessary
         this->cumulative.update(this->curr);
         if(idx != this->currIdx)
             this->cumulative.commit();
     }
 
-    this->curr.clear();
-    this->curr += text;
+    this->curr = text;
     this->currIdx = idx;
 
     if(!isCommand){
@@ -205,7 +205,7 @@ void texthandler::changeCaretPos(int idx){
     QString total = get();
 
     before = total.mid(0, idx);
-    after = total.mid(idx, total.length());
+    after = total.mid(idx);
     curr = "";
 
     qDebug() << "change caret pos";
@@ -241,7 +241,7 @@ static int min(int a, int b){
 void texthandler::set(QString s){
     currentPos = min(currentPos, s.length());
     before = s.mid(0, currentPos);
-    after = s.mid(currentPos, s.length() - currentPos);
+    after = s.mid(currentPos);
     currentPos = s.length();
     curr.clear();
 }
