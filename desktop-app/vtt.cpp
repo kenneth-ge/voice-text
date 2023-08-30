@@ -32,8 +32,7 @@ vtt::vtt()
     connect(idleTimer, &QTimer::timeout, this, [this]() {
         //qDebug() << "User hasn't typed for a while!";
         qDebug() << "resume due to not typing";
-        sock->write("resume\n");
-        sock->flush();
+        this->unpause();
     });
 }
 
@@ -41,12 +40,14 @@ void vtt::pause(){
     qDebug() << "pause vtt";
     sock->write("pause\n");
     sock->flush();
+    isPaused = true;
 }
 
 void vtt::unpause(){
     qDebug() << "unpause vtt";
     sock->write("resume\n");
     sock->flush();
+    isPaused = false;
 }
 
 void vtt::textHasChanged(QString text){
@@ -58,9 +59,7 @@ void vtt::textHasChanged(QString text){
         return;
     }
 
-    qDebug() << "pausing and starting idle timer";
-    sock->write("pause\n");
-    sock->flush();
+    pause();
     this->cumulative.set(text);
     this->curr.clear();
     this->currIdx++;
@@ -157,8 +156,8 @@ void vtt::pedalDoublePress(){
 }
 
 void vtt::pedalPressed(){
+    wasPaused = isPaused;
     idleTimer->stop();
-    qDebug() << "unpause";
     unpause();
     doublePressed = false;
     buttonPressed();
@@ -167,6 +166,9 @@ void vtt::pedalPressed(){
 void vtt::pedalReleased(){
     if(!doublePressed){
         buttonReleased();
+    }
+    if(wasPaused){
+        pause();
     }
 }
 

@@ -60,6 +60,8 @@ private:
     QString commandText;
     bool ignoreTextChange;
     bool doublePressed = false;
+    bool isPaused = false;
+    bool wasPaused = false;
 private slots:
     void onMessage();
 };
