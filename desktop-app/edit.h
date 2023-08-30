@@ -51,12 +51,13 @@ signals:
     void openSave();
     void emitSelected();
     void needsPause();
+    void needsUnpause();
 public slots:
     void commandRecvd(QString text, QString command);
     void textRecvd(QString text);
     void pedalDoublePress();
     void saveFile(QString filePath);
-    void nextOption();
+    void nextOption(bool wasHolding);
 private:
     void paste();
     void clearOptions();

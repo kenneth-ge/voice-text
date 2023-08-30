@@ -34,23 +34,30 @@ vtt::vtt()
         qDebug() << "resume due to not typing";
         this->unpause();
     });
+
+    unpause();
 }
 
 void vtt::pause(){
-    qDebug() << "pause vtt";
     sock->write("pause\n");
     sock->flush();
     isPaused = true;
 }
 
 void vtt::unpause(){
-    qDebug() << "unpause vtt";
     sock->write("resume\n");
     sock->flush();
     isPaused = false;
 }
 
+void vtt::endSeg(){
+    this->sock->write("end_seg\n");
+    this->sock->flush();
+}
+
 void vtt::textHasChanged(QString text){
+    this->cumulative.check();
+
     emit newText(text);
 
     // Check if the text change was triggered programmatically
@@ -63,6 +70,7 @@ void vtt::textHasChanged(QString text){
     this->cumulative.set(text);
     this->curr.clear();
     this->currIdx++;
+    endSeg();
     idleTimer->start();
 
     emit newText(text);
@@ -125,14 +133,12 @@ void vtt::onStartInserting(int pos){
 }
 
 void vtt::buttonPressed(){
-    this->cumulative.commit();
     this->cumulative.update(curr);
     this->cumulative.commit();
     this->curr.clear();
     this->isCommand = true;
 
-    this->sock->write("end_seg\n");
-    this->sock->flush();
+    endSeg();
 }
 
 int max(int a, int b){
@@ -142,7 +148,6 @@ int max(int a, int b){
 }
 
 void vtt::buttonReleased(){
-    qDebug() << "button released";
     this->isCommand = false;
     this->command = curr;
     auto text = this->cumulative.get();
@@ -174,15 +179,10 @@ void vtt::pedalReleased(){
 
 void vtt::caretPositionChanged(int start, int end){
     if(start == end){
-        qDebug() << "change caret pos " << start;
         cumulative.changeCaretPos(start);
-        this->sock->write("end_seg\n");
-        this->sock->flush();
+        endSeg();
+        this->currIdx++;
     }
-}
-
-void vtt::deleteSelected(){
-
 }
 
 void vtt::setText(QString text){
@@ -230,8 +230,23 @@ void texthandler::update(QString s){
     this->curr = s;
 }
 
+void texthandler::check(){
+    qDebug() << "pos: " << currentPos;
+    qDebug() << "before: " << before;
+    qDebug() << "after: " << after;
+    qDebug() << "curr: " << curr;
+}
+
 QString texthandler::get(){
-    return before + curr + after;
+    QString ret = before + curr + after;
+
+    if(ret.length() >= prevSize * 2){
+        qDebug() << "duplication glitch";
+        check();
+    }
+    prevSize = ret.length();
+
+    return ret;
 }
 
 static int min(int a, int b){

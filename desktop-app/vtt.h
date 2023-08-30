@@ -13,10 +13,12 @@ public:
     void update(QString s);
     QString get();
     void set(QString s);
+    void check();
 private:
     int currentPos = 0;
     QString curr;
     QString before, after;
+    int prevSize = 0;
 };
 
 class vtt : public QObject
@@ -39,10 +41,10 @@ public slots:
     void pedalPressed();
     void pedalReleased();
     void pedalDoublePress();
-    void deleteSelected();
     void setText(QString text);
     void pause();
     void unpause();
+    void endSeg();
 signals:
     void textChanged();
     void newCommand(QString text, QString command);

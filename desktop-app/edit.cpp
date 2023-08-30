@@ -172,8 +172,11 @@ int edit::getSelected(){
     return this->selectedOption;
 }
 
-void edit::nextOption(){
+void edit::nextOption(bool wasHolding){
     if(!this->showingOptions)
+        return;
+
+    if(wasHolding)
         return;
 
     this->selectedOption++;
@@ -191,13 +194,13 @@ void edit::clearOptions(){
     this->options.clear();
     this->selecting = false;
     emit newOptions();
+    emit needsUnpause();
 }
 
 void edit::pedalDoublePress(){
     // clear options (quick exit command)
     doublePress = true;
     clearOptions();
-
 }
 
 bool edit::parseActionWord(QString action){
@@ -222,16 +225,18 @@ bool edit::parseActionWord(QString action){
 }
 
 void edit::commandRecvd(QString text, QString command){
-    // this->selecting if this->showingOptions
+    static QRegularExpression ws("[^\\w\\s]");
+    static QRegularExpression pp("\\p{P}");
+
     if(this->showingOptions/* || this->selecting*/){
         command = command.toLower().trimmed();
-        command = command.replace(QRegularExpression("[^\\w\\s]"), "");
+        command = command.replace(ws, "");
 
         auto idx = command.indexOf(' ');
         if(idx == -1)
             idx = command.length();
 
-        auto puncIdx = command.indexOf(QRegularExpression("\\p{P}"));
+        auto puncIdx = command.indexOf(pp);
         if(puncIdx != -1 && puncIdx < idx){
             idx = puncIdx;
         }
@@ -247,8 +252,9 @@ void edit::commandRecvd(QString text, QString command){
                 parseActionWord(firstWord);
             }else{
                 // see if this is an action word
-                if(parseActionWord(firstWord))
+                if(parseActionWord(firstWord)){
                     return;
+                }
 
                 // otherwise, make a selection, or make a selection while also doing an action
                 int selection = -1;
@@ -291,13 +297,13 @@ void edit::commandRecvd(QString text, QString command){
         return;
     }else{
         command = command.toLower().trimmed();
-        command = command.replace(QRegularExpression("[^\\w\\s]"), "");
+        command = command.replace(ws, "");
 
         auto idx = command.indexOf(' ');
         if(idx == -1)
             idx = command.length();
 
-        auto puncIdx = command.indexOf(QRegularExpression("\\p{P}"));
+        auto puncIdx = command.indexOf(pp);
         if(puncIdx != -1 && puncIdx < idx){
             idx = puncIdx;
         }

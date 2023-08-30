@@ -49,11 +49,15 @@ Window {
             Connections {
                 target: Edit
                 function onEmitSelect(fragment){
-                    var idx = Vtt.text.lastIndexOf(fragment);
+                    console.log("fragment to select: ", fragment);
+                    var idx = textarea.text.lastIndexOf(fragment);
                     textarea.select(idx, idx + fragment.length);
                 }
                 function onRemoveSelected(){
                     console.log("remove selected")
+                    console.log(textarea.text)
+                    console.log(textarea.selectionStart + " " + textarea.selectionEnd)
+                    console.log(textarea.text.substring(textarea.selectionStart, textarea.selectionEnd))
                     textarea.remove(textarea.selectionStart, textarea.selectionEnd);
                     Vtt.textHasChanged(textarea.text)
                     Vtt.caretPositionChanged(textarea.selectionStart, textarea.selectionStart)

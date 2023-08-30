@@ -19,7 +19,7 @@ public slots:
     void pedalChanged();
 signals:
     void pedalDown();
-    void pedalUp();
+    void pedalUp(bool afterHold);
     void pedalDoublePress();
     void pedalHeld();
     void pedalUpAfterHold();

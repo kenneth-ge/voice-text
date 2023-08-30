@@ -31,9 +31,9 @@ int main(int argc, char *argv[])
     QObject::connect(&vtt, &vtt::newCommand, &ed, &edit::commandRecvd);
     QObject::connect(&vtt, &vtt::newText, &ed, &edit::textRecvd);
     QObject::connect(&ed, &edit::startInserting, &vtt, &vtt::onStartInserting);
-    QObject::connect(&ed, &edit::removeSelected, &vtt, &vtt::deleteSelected);
     QObject::connect(&ed, &edit::setText, &vtt, &vtt::setText);
     QObject::connect(&ed, &edit::needsPause, &vtt, &vtt::pause);
+    QObject::connect(&ed, &edit::needsUnpause, &vtt, &vtt::unpause);
 
     qDebug() << "connected";
 

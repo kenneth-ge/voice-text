@@ -11,7 +11,6 @@ pedal_manager::pedal_manager()
                 holding = true;
                 lastHeld = QDateTime::currentMSecsSinceEpoch();
                 emit pedalHeld();
-                qDebug() << "pedal held";
             }
         }
     });
@@ -20,7 +19,6 @@ pedal_manager::pedal_manager()
 void pedal_manager::pedalChanged()
 {
     pressed = !pressed;
-    qDebug() << "pressed: " << pressed;
 
     if(!timer->isActive()){
         timer->start();
@@ -31,7 +29,7 @@ void pedal_manager::pedalChanged()
         emit pedalDown();
     }else{
         lastRelease = QDateTime::currentMSecsSinceEpoch();
-        emit pedalUp();
+        emit pedalUp(holding);
 
         if(holding){
             emit pedalUpAfterHold();
