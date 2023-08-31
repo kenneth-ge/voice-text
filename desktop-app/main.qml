@@ -27,11 +27,19 @@ Window {
             selectByMouse: true
             background: Qt.rgba(1, 1, 1, 1)
 
+            property string oldText : ""
+
             //textFormat: TextEdit.RichText
 
             wrapMode: TextEdit.WordWrap
             //readOnly: true
             onTextChanged: Vtt.textHasChanged(text)
+            /*{
+                if(text != oldText){
+                    Vtt.textHasChanged(text)
+                }
+                oldText = text;
+            }*/
 
             // Connect the caretPositionChanged signal to the C++ slot
             onSelectedTextChanged: Vtt.caretPositionChanged(textarea.selectionStart, textarea.selectionEnd)
@@ -147,6 +155,7 @@ Window {
                         width: parent.width
                         padding: 10
                         Text {
+                            id: opt_elem
                             text: opt_num
                             font.pixelSize: 24
                             anchors.verticalCenter: parent.verticalCenter
@@ -156,7 +165,7 @@ Window {
                             id: element
                             text: frag
                             font.pixelSize: 20
-                            width: parent.width
+                            width: parent.width - opt_elem.width
                             padding: 5
                             wrapMode: Text.WordWrap
                             anchors.verticalCenter: parent.verticalCenter

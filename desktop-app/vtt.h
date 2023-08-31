@@ -64,6 +64,7 @@ private:
     bool doublePressed = false;
     bool isPaused = false;
     bool wasPaused = false;
+    QString oldText;
 private slots:
     void onMessage();
 };

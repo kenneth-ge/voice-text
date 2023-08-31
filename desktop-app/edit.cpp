@@ -130,6 +130,7 @@ void edit::onMessage(){
     emit newOptions();
     this->showingOptions = true;
 
+    qDebug() << "needs pause";
     emit needsPause();
 
     auto frag = this->options[selectedOption]->frag;
@@ -176,8 +177,9 @@ void edit::nextOption(bool wasHolding){
     if(!this->showingOptions)
         return;
 
-    if(wasHolding)
+    if(wasHolding){
         return;
+    }
 
     this->selectedOption++;
     this->selectedOption %= this->options.length();

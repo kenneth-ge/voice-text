@@ -39,12 +39,15 @@ vtt::vtt()
 }
 
 void vtt::pause(){
+    qDebug() << "pause";
     sock->write("pause\n");
     sock->flush();
     isPaused = true;
+    idleTimer->stop();
 }
 
 void vtt::unpause(){
+    qDebug() << "unpause";
     sock->write("resume\n");
     sock->flush();
     isPaused = false;
@@ -66,12 +69,21 @@ void vtt::textHasChanged(QString text){
         return;
     }
 
-    pause();
+    if(oldText == text){
+        qDebug() << "text is same!";
+        return;
+    }
+
+    oldText = text;
+
+    qDebug() << "text has changed";
+    qDebug() << "new len: " << text.length();
+    idleTimer->start();
+
     this->cumulative.set(text);
     this->curr.clear();
     this->currIdx++;
     endSeg();
-    idleTimer->start();
 
     emit newText(text);
 }
@@ -231,10 +243,7 @@ void texthandler::update(QString s){
 }
 
 void texthandler::check(){
-    qDebug() << "pos: " << currentPos;
-    qDebug() << "before: " << before;
-    qDebug() << "after: " << after;
-    qDebug() << "curr: " << curr;
+
 }
 
 QString texthandler::get(){
