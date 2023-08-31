@@ -1,3 +1,5 @@
+![image](https://github.com/kenneth-ge/voice-text/assets/57784063/b9744f3f-3b39-4141-a6d2-12bc926af1ee)
+
 Reserved commands:
 * paste
 * paste clear
