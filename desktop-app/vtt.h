@@ -14,6 +14,7 @@ public:
     QString get();
     void set(QString s);
     void check();
+    int getCaretPos();
 private:
     int currentPos = 0;
     QString curr;
@@ -51,6 +52,8 @@ signals:
     void commandTextChanged();
     void newText(QString text);
     void setTextArea(QString text);
+    void setCursorPos(int pos);
+    void ignore(int posInstead);
 private:
     QTcpSocket *sock;
     QTimer *idleTimer;

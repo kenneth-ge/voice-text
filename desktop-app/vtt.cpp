@@ -76,8 +76,6 @@ void vtt::textHasChanged(QString text){
 
     oldText = text;
 
-    qDebug() << "text has changed";
-    qDebug() << "new len: " << text.length();
     idleTimer->start();
 
     this->cumulative.set(text);
@@ -134,9 +132,15 @@ void vtt::onMessage(){
 
     ignoreTextChange = true;
 
-    if(!isCommand)
+    if(!isCommand){
+        int oldPos = this->cumulative.getCaretPos();
+        qDebug() << "cumulative caret pos: " << oldPos;
+        emit ignore(oldPos);
         emit textChanged();
-    else
+        /*emit setCursorPos(oldPos);
+        cumulative.changeCaretPos(oldPos);
+        qDebug() << "reset cursor pos: " << oldPos;*/
+    }else
         emit commandTextChanged();
 }
 
@@ -209,6 +213,12 @@ vtt::~vtt(){
 }
 
 /* texthandler */
+int texthandler::getCaretPos(){
+    // currentPos is the start of the currently active
+    // segment
+    return this->currentPos + this->curr.length();
+}
+
 void texthandler::commit(){
     before += curr;
     currentPos += curr.length();
@@ -222,7 +232,9 @@ void texthandler::changeCaretPos(int idx){
     after = total.mid(idx);
     curr = "";
 
-    qDebug() << "change caret pos";
+    this->currentPos = idx;
+
+    qDebug() << "change caret pos " << idx;
 
     /*
     if(idx < currentPos){
@@ -243,7 +255,10 @@ void texthandler::update(QString s){
 }
 
 void texthandler::check(){
-
+    /*qDebug() << "before: " << before;
+    qDebug() << "curr: " << curr;
+    qDebug() << "after: " << after;
+    qDebug() << "pos: " << this->currentPos;*/
 }
 
 QString texthandler::get(){
@@ -268,6 +283,5 @@ void texthandler::set(QString s){
     currentPos = min(currentPos, s.length());
     before = s.mid(0, currentPos);
     after = s.mid(currentPos);
-    currentPos = s.length();
     curr.clear();
 }

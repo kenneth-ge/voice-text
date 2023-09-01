@@ -27,13 +27,29 @@ Window {
             selectByMouse: true
             background: Qt.rgba(1, 1, 1, 1)
 
-            property string oldText : ""
-
             //textFormat: TextEdit.RichText
+
+            property int ignore : 0
+            property int wantsPos : 0
+
+            onCursorPositionChanged: {
+                if(ignore <= 0){
+                    console.log("don't ignore change to pos " + cursorPosition)
+                    Vtt.caretPositionChanged(cursorPosition, cursorPosition)
+                }else{
+                    console.log("ignore change to pos: " + cursorPosition)
+                    cursorPosition = wantsPos
+                }
+                ignore--
+            }
 
             wrapMode: TextEdit.WordWrap
             //readOnly: true
-            onTextChanged: Vtt.textHasChanged(text)
+            onTextChanged: {
+
+                Vtt.textHasChanged(text)
+            }
+
             /*{
                 if(text != oldText){
                     Vtt.textHasChanged(text)
@@ -42,15 +58,27 @@ Window {
             }*/
 
             // Connect the caretPositionChanged signal to the C++ slot
-            onSelectedTextChanged: Vtt.caretPositionChanged(textarea.selectionStart, textarea.selectionEnd)
+            onSelectedTextChanged: {
+                //console.log('selected pos changed: ' + textarea.selectionStart + " " + textarea.selectionEnd)
+                Vtt.caretPositionChanged(textarea.selectionStart, textarea.selectionEnd)
+            }
 
             Connections {
                 target: Vtt
+                function onIgnore(position){
+                    console.log("on ignore, instead go to pos " + position)
+                    textarea.ignore = 3;
+                    textarea.wantsPos = position;
+                }
+
                 function onTextChanged() {
                     textarea.cursorPosition = textarea.text.length
                 }
                 function onSetTextArea(text){
                     textarea.text = text
+                }
+                function onSetCursorPos(pos){
+                    cursorPosition = pos
                 }
             }
 
