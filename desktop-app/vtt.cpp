@@ -134,7 +134,7 @@ void vtt::onMessage(){
 
     if(!isCommand){
         int oldPos = this->cumulative.getCaretPos();
-        qDebug() << "cumulative caret pos: " << oldPos;
+        //qDebug() << "cumulative caret pos: " << oldPos;
         emit ignore(oldPos);
         emit textChanged();
         /*emit setCursorPos(oldPos);
@@ -202,7 +202,6 @@ void vtt::caretPositionChanged(int start, int end){
 }
 
 void vtt::setText(QString text){
-    qDebug() << "set text to: " << text;
     this->cumulative.set(text);
     emit setTextArea(text);
 }
@@ -234,7 +233,7 @@ void texthandler::changeCaretPos(int idx){
 
     this->currentPos = idx;
 
-    qDebug() << "change caret pos " << idx;
+    //qDebug() << "change caret pos " << idx;
 
     /*
     if(idx < currentPos){
@@ -265,7 +264,7 @@ QString texthandler::get(){
     QString ret = before + curr + after;
 
     if(ret.length() >= prevSize * 2){
-        qDebug() << "duplication glitch";
+        qDebug() << "duplication glitch?";
         check();
     }
     prevSize = ret.length();

@@ -66,7 +66,7 @@ Window {
             Connections {
                 target: Vtt
                 function onIgnore(position){
-                    console.log("on ignore, instead go to pos " + position)
+                    //console.log("on ignore, instead go to pos " + position)
                     textarea.ignore = 3;
                     textarea.wantsPos = position;
                 }
