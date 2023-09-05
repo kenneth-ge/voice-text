@@ -342,6 +342,9 @@ void edit::commandRecvd(QString text, QString command){
 
     //qDebug() << "Loading screen: " << loadingScrn;
 
+    this->selectedOption = 0;
+    emit emitSelected();
+
     options.clear();
 
     //auto textCh = text.toUtf8();
