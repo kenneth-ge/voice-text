@@ -3,7 +3,7 @@ Voice to text word processor... but with editing features! And built with voice 
 
 ![image](https://github.com/kenneth-ge/voice-text/assets/57784063/b9744f3f-3b39-4141-a6d2-12bc926af1ee)
 
-See [here](google.com) for a demo video (TODO: insert demo video here).
+See [here](https://drive.google.com/file/d/1dwJoa76IOmhrNsR1sFWSZ-aLF2XpOvmK/view?usp=sharing) for a demo video.
 
 Reserved commands:
 * paste
