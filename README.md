@@ -5,6 +5,8 @@ Voice to text word processor... but with editing features! And built with voice 
 
 See [here](https://drive.google.com/file/d/1dwJoa76IOmhrNsR1sFWSZ-aLF2XpOvmK/view?usp=sharing) for a demo video.
 
+Here's a [link to the kernel driver](https://github.com/kenneth-ge/Foot-Pedal-Kernel-Dev) I also wrote for this project. 
+
 Reserved commands:
 * paste
 * paste clear
